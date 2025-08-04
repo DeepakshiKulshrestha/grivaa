@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.8.3/angular.min.js"></script>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Bootstrap demo</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+      integrity="sha384-LN+7fdVzj6u52u30Kp6M/trliBMCMKTyK833zpbD+pXdCLuTusPj697FH4R/5mcr"
+      crossorigin="anonymous"
+    />
+    <script
+      src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js"
+      integrity="sha384-ndDqU0Gzau9qJ1lfW4pNLlhNTkCfHzAVBReH9diLvGRem5+R9g2FzA8ZGN954O5Q"
+      crossorigin="anonymous"
+    ></script>
+
+    <title>Document</title>
+    <script>
+      var mymodule = angular.module("kuchModule", []);
+      mymodule.controller("kuchController", function($scope, $http) {
+
+    $scope.emailid = "";
+    $scope.jsonArray = [];
+
+    // Fetch All
+    $scope.doFetchAll = function () {
+      var url = "/fetch-tournaments?emailid=" + $scope.emailid;
+
+      $http.get(url).then(goodfx,badfx);
+        function goodfx(response) {
+          $scope.jsonArray = response.data;
+        }
+        function badfx(error) {
+          alert(JSON.stringify(error.data));
+        }
+     
+    };
+
+    // Delete
+    $scope.doDelete = function(rid) {
+     
+
+      var url = "/delete-tournamentmanager?rid=" + rid;
+
+      $http.get(url).then(goodfx,badfx);
+        function goodfx(response) {
+          //alert(response.data);
+          $scope.doFetchAll();
+        }
+        function badfx(error) {
+          alert(JSON.stringify(error.data));
+        }
+      
+    
+
+  }})
+  </script>
+  </head>
+  <body ng-app="kuchModule" ng-controller="kuchController" ng-init="doFetchAll()">
+
+<div class="container mt-5">
+  <div class="card">
+    <div class="card-header text-center fw-bold">Tournaments Manager</div>
+    <div class="card-body">
+
+      <!-- Email ID Input -->
+      <form action="/fetch-tournaments" method="get" class="d-flex gap-2 my-3">
+  <input type="email" ng-model="emailid" class="form-control" placeholder="Enter email" required />
+  <button type="button" class="btn btn-outline-dark" ng-click="doFetchAll()">Fetch Tournaments</button>
+</form>
+
+
+      <!-- Table -->
+      <!-- Table -->
+<div>
+  <h5 class="text-center text-black-50">Posted Tournaments</h5>
+  <table class="table table-bordered table-striped table-hover">
+    <thead class="table-dark">
+      <tr>
+        <th>Sr No</th>
+        <th>Email</th>
+        <th>Event</th>
+        <th>time</th>
+        <th>city</th>
+        <th>age</th>
+        <th>fee</th>
+        <th>prize</th>
+        <th>Sports</th>
+        <th>Location</th>
+        <th>Date</th>
+        <th>contact</th>
+        <th>Operations</th>
+      </tr>
+    </thead>
+
+    <tbody>
+      <tr ng-repeat="obj in jsonArray">
+        <td>{{$index + 1}}</td>
+        <td>{{obj.emailid}}</td>
+        <td>{{obj.event}}</td>
+        <td>{{obj.toe}}</td>
+        <td>{{obj.city}}</td>
+        <td>{{obj.minage}}-{{obj.maxage}}</td>
+        <td>{{obj.fee}}</td>
+        <td>{{obj.prize}}</td>
+        <td>{{obj.sports}}</td>
+        <td>{{obj.location}}</td>
+        <td>{{obj.doe}}</td>
+        <td>{{obj.contact}}</td>
+        <td>
+         
+           
+            <button class="btn btn-danger btn-sm" type="button" ng-click="doDelete(obj.rid)">Delete</button>
+         
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+
+    </div>
+  </div>
+</div>
+  </body>
+
+     
+  
+</html>

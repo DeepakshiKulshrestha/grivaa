@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Bootstrap demo</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-LN+7fdVzj6u52u30Kp6M/trliBMCMKTyK833zpbD+pXdCLuTusPj697FH4R/5mcr" crossorigin="anonymous" />
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-ndDqU0Gzau9qJ1lfW4pNLlhNTkCfHzAVBReH9diLvGRem5+R9g2FzA8ZGN954O5Q"
+        crossorigin="anonymous"></script>
+    <script>
+        $(document).ready(function () {
+                $("#save").click(function () {
+                let email = $("#txtEmail").val();
+                let pwd = $("#txtPwd").val();
+                let user = $("#comboUser").val();
+                let obj =
+                {
+                    type: "get",
+                    url: "/save-user",
+                    data: {
+                        email: email,
+                        pwd: pwd,
+                        user: user,
+                    }
+                }
+                $.ajax(obj).then(function (resp) {
+                    //alert("Server says: " + resp); 
+                  //  alert("emailid: " + email + " password: " + pwd + " usertype:" + user);
+                    alert(resp);
+                    // console.log("emailid: "+email+" password: "+pwd+" usertype:"+user);
+                })
+                    .fail(function (err) {
+                        alert(err.message);
+                       
+                    })
+            })
+            $("#btnLogin").click(function () {
+                let email = $("#txtEmail2").val();
+                let pwd = $("#txtPwd2").val();
+               
+                let obj =
+                {
+                    type: "get",
+                    url: "/login-user",
+                    data: {
+                        email: email,
+                        pwd: pwd
+                    }
+                }
+                $.ajax(obj).then(function (resp) {
+                    //alert("Server says: " + resp); 
+                  //  alert("emailid: " + email + " password: " + pwd + " usertype:" + user);
+                    alert(resp);
+                    // console.log("emailid: "+email+" password: "+pwd+" usertype:"+user);
+                })
+                    .fail(function (err) {
+                        alert(err.message);
+                       
+                    })
+            })
+        })
+       
+
+
+
+
+        
+
+    </script>
+    
+</head>
+
+<body>
+     <nav class="navbar" style="background-color: #ffffff ;">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="#">
+                <img src="/pics/Grivaa logo.jpg" alt="Logo" width="60" height="60"
+                    class="d-inline-block align-text-top">
+                <b>GRIVAA</b>
+
+            </a>
+            <center>
+            <ul class="nav justify-content-center">
+  <li class="nav-item">
+    <a class="nav-link active" aria-current="page" href="#">Active</a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link" href="#">Link</a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link" href="#">Link</a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link disabled" aria-disabled="true">Disabled</a>
+  </li>
+</ul>
+</center>
+
+        </div>
+    </nav>
+    
+    <center>
+        <!-- Button trigger modal -->
+        <button type="button" class="btn btn-danger" data-bs-toggle="modal"
+            data-bs-target="#SignupModal">SIGNUP</button>
+        <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#LoginModal">LOGIN
+            
+        </button>
+        
+       
+        <a href="/dash-organiser.html" target="_blank" class="btn btn-dark">Org Dashboard</a>
+        <a href="/dash-player.html" target="_blank" class="btn btn-dark">Players Dashboard</a>
+         <a href="/dash-admin.html" target="_blank" class="btn btn-dark">Admin Dashboard</a>
+
+
+
+        <!--signup  Modal -->
+        <div class="modal fade" id="SignupModal" tabindex="-1" aria-labelledby="SignupModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h1 class="modal-title fs-5" id="SignupModalLabel">Signup Modal</h1>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <p>
+                        <form >
+                            <div class="mb-3">
+                                <label for="exampleFormControlInput1" class="form-label">Email address</label>
+                                
+                                <input type="email" class="form-control" name="txtEmail" id="txtEmail"
+                                    placeholder="name@example.com">
+                            </div>
+                            <div class="mb-3">
+                                <label for="exampleFormControlInput1" class="form-label">Password</label>
+                                <input type="password" class="form-control" name="txtPwd" id="txtPwd"
+                                    placeholder="8 Characters only">
+                            </div>
+                            <select class="form-select" aria-label="Default select example" name="comboUser"
+                                id="comboUser">
+                                <option selected>User Type</option>
+                                <option value="1">Organizer</option>
+                                <option value="2">Player</option>
+
+                            </select>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-primary" id="save">Signup</button>
+                            </div>
+
+                        </form>
+                        </p>
+
+                    </div>
+
+                </div>
+            </div>
+        </div>
+        <!----login modal-->
+        <div class="modal fade" id="LoginModal" tabindex="-1" aria-labelledby="LoginModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h1 class="modal-title fs-5" id="LoginModalLabel">Login Modal</h1>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                         <p>
+                        <form>
+                            <div class="mb-3">
+                                <label for="exampleFormControlInput1" class="form-label">Email address</label>
+                                 
+                                <input type="email" class="form-control" name="txtEmail2" id="txtEmail2"
+                                    placeholder="name@example.com">
+                            </div>
+                            <div class="mb-3">
+                                <label for="exampleFormControlInput1" class="form-label">Password</label>
+                                <input type="password" class="form-control" name="txtPwd2" id="txtPwd2"
+                                    placeholder="8 Characters only">
+                            </div>
+                            
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-primary" id="btnLogin">Login</button>
+                            </div>
+
+                        </form>
+                        </p>
+                    </div>
+                    
+                </div>
+            </div>
+        </div>
+       
+
+    </center>
+</body>
+</html>

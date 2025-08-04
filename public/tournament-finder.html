@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.8.2/angular.min.js"></script>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-LN+7fdVzj6u52u30Kp6M/trliBMCMKTyK833zpbD+pXdCLuTusPj697FH4R/5mcr" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-ndDqU0Gzau9qJ1lfW4pNLlhNTkCfHzAVBReH9diLvGRem5+R9g2FzA8ZGN954O5Q"
+        crossorigin="anonymous"></script>
+    <script>
+        var mymodule = angular.module("kuchModule", []);
+        mymodule.controller("kuchController", function ($scope, $http) {
+            $scope.selcity = "";
+            $scope.selgame = "";
+            $scope.sportsevents = [];
+            $scope.cities = [];
+            $scope.newarray = [];
+            $scope.jsonarray=[];
+
+
+
+            $scope.dofetchsports = function () {
+                var url = "/dofetchdistinct-sports";
+                $http.get(url).then(goodfx, badfx);
+
+                function goodfx(response) {
+                    $scope.sportsevents = response.data;
+                }
+                function badfx(error) {
+                    alert(JSON.stringify(error.data));
+                }
+
+            }
+            $scope.dofetchcity = function () {
+                var url = "/dofetchdistinct-cities";
+                $http.get(url).then(goodfx, badfx);
+
+                function goodfx(response) {
+                    $scope.cities = response.data;
+                }
+                function badfx(error) {
+                    alert(JSON.stringify(error.data));
+                }
+
+            }
+
+
+
+            $scope.dofetchall = function () {
+                var url = "/fetch-player-tournaments-cards?selsports=" + $scope.selgame + "&selcity=" + $scope.selcity;
+                $http.get(url).then(goodfx, badfx);
+
+                function goodfx(response) {
+                    $scope.newarray = response.data;
+                }
+                function badfx(error) {
+                    alert(JSON.stringify(error.data));
+                }
+
+            }
+             $scope.detailbtn = function (index) {
+               $scope.jsonarray=$scope.newarray[index]
+
+            }
+
+
+
+
+
+        })
+    </script>
+</head>
+
+<body ng-app="kuchModule" ng-controller="kuchController" ng-init="dofetchsports();dofetchcity()">
+     <nav class="navbar" style="background-color: #ffffff ;">
+    <div class="container-fluid">
+      <a class="navbar-brand" href="#">
+        <div class="logo-container">
+          <img src="/pics/Grivaa logo.jpg" alt="Logo" class="logo-img">
+          <b class="logo-text">GRIVAA</b>
+        </div>
+
+      </a>
+
+    </div>
+  </nav>
+    <center>
+        <h1>All Tournaments</h1>
+    </center>
+    <div class="container mt-5">
+        <div class="row justify-content-center">
+
+            <div class="col md-4 mb-3">
+                <select ng-model="selgame" class="form-select w-100">
+                    <option value="" disabled selected>Select Sports</option>
+                    <option value="{{obj.sports}}" ng-repeat="obj in sportsevents">{{obj.sports}}</option>
+                </select>
+            </div>
+
+
+            <div class="col md-4 mb-3">
+                <select ng-model="selcity" class="form-select w-100">
+                    <option value="" disabled selected>Select City</option>
+                    <option value="{{obj.city}}" ng-repeat="obj in cities">{{obj.city}}</option>
+                </select>
+            </div>
+        </div>
+    </div>
+    <center>
+        <button ng-click="dofetchall()" class="btn btn-dark">Find Tournaments</button>
+    </center>
+    <div class="container">
+        <div class="row">
+            <div class="col-md-3 mb-2 p-3" ng-repeat="obj in newarray">
+                <div class="card" style="width: 18rem;"> <h1> {{obj.event}}</h1>
+                   
+                    <div class="card-body">
+                        <p class="card-title">{{obj.sports}} </p>
+
+                        <p class="card-text">{{obj.doe}}</p>
+                        <p class="card-text">{{obj.toe}}</p>
+
+                         <a href="exampleModal" class="btn btn-outline-dark" data-bs-toggle="modal" data-bs-target="#exampleModal" ng-click="detailbtn($index)">
+        Details
+                         </a>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Button trigger modal -->
+   
+
+    <!-- Modal -->
+    <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h1 class="modal-title fs-5" id="exampleModalLabel">Event Info</h1>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                   
+                    <p>
+                         <span class="text-danger fw-bold">Organiser's Mail</span>
+                    <span class="text-dark">{{jsonarray.emailid}}</span>
+                    </p>
+                    <p>
+                         <span class="text-danger fw-bold">Event Name</span>
+                    <span class="text-dark">{{jsonarray.event}}</span>
+                    </p>
+                    <p>
+                         <span class="text-danger fw-bold">Date</span>
+                    <span class="text-dark">{{jsonarray.doe}}</span>
+                    </p>
+                    <p>
+                         <span class="text-danger fw-bold">Time</span>
+                    <span class="text-dark">{{jsonarray.toe}}</span>
+                    </p>
+                    <p>
+                         <span class="text-danger fw-bold">Location</span>
+                    <span class="text-dark">{{jsonarray.location}}</span>
+                    </p>
+                     <p>
+                         <span class="text-danger fw-bold">City</span>
+                    <span class="text-dark">{{jsonarray.city}}</span>
+                    </p>
+                     <p>
+                         <span class="text-danger fw-bold">Sports</span>
+                    <span class="text-dark">{{jsonarray.sports}}</span>
+                    </p>
+                     <p>
+                         <span class="text-danger fw-bold">Age Limit</span>
+                    <span class="text-dark">{{jsonarray.minage}}-{{jsonarray.maxage}}</span>
+                    </p>
+                     <p>
+                         <span class="text-danger fw-bold">Last date for registration</span>
+                    <span class="text-dark">{{jsonarray.lastdate}}</span>
+                    </p>
+                     <p>
+                         <span class="text-danger fw-bold">Registration Fee</span>
+                    <span class="text-dark">{{jsonarray.fee}}</span>
+                    </p>
+                     <p>
+                         <span class="text-danger fw-bold">Prize Pool</span>
+                    <span class="text-dark">{{jsonarray.prize}}</span>
+                    </p>
+                     <p>
+                         <span class="text-danger fw-bold">P.O.C</span>
+                    <span class="text-dark">{{jsonarray.contact}}</span>
+                    </p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                   
+                </div>
+            </div>
+        </div>
+    </div>
+
+</body>
+
+</html>

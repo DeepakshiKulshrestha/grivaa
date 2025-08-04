@@ -1,0 +1,152 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Bootstrap demo</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.8.2/angular.min.js"></script>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-LN+7fdVzj6u52u30Kp6M/trliBMCMKTyK833zpbD+pXdCLuTusPj697FH4R/5mcr" crossorigin="anonymous">
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js" integrity="sha384-ndDqU0Gzau9qJ1lfW4pNLlhNTkCfHzAVBReH9diLvGRem5+R9g2FzA8ZGN954O5Q" crossorigin="anonymous"></script>
+ <style>
+  .card:hover {
+    transform: translateY(-8px);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+  }
+</style>
+<script>
+  window.onerror = function (msg, url, lineNo, columnNo, error) {
+    alert('Error: ' + msg);
+    return false;
+  };
+</script>
+ <script>
+      var mymodule = angular.module("kuchModule", []);
+      mymodule.controller("kuchController", function($scope, $http) {    
+
+    $scope.emailid = "";
+    $scope.oldpwd= "";
+    $scope.newpwd= "";
+    $scope.jsonArray = [];
+
+    // update
+    $scope.doChange = function () {
+     var url = "/change-password?emailid=" + $scope.emailid +"&oldpwd=" + $scope.oldpwd +"&newpwd=" + $scope.newpwd;
+
+
+      $http.get(url).then(goodfx,badfx);
+        function goodfx(response) {
+          alert(response.data);
+        }
+        function badfx(error) {
+          alert(JSON.stringify(error.data));
+        }
+     
+    };
+  })
+
+    </script>
+
+
+</head>
+  <body ng-app="kuchModule" ng-controller="kuchController">
+
+    
+      <nav class="navbar" style="background-color: #ffffff ;">
+  <div class="container-fluid">
+    <a class="navbar-brand" href="#">
+      <img src="/pics/Grivaa logo.jpg" alt="Logo" width="60" height="60" class="d-inline-block align-text-top">
+      <b>GRIVAA</b>
+    </a>
+   
+  </div>
+</nav>
+<center>
+    <div class="row">
+  <div class="col-sm-3">
+    <div class="card"  >
+      <img src="/pics/images.png" class="card-img-top" height="250" alt="...">
+      <div class="card-body">
+        <h5 class="card-title">PLAYER'S PROFILE</h5>
+        <p class="card-text"></p>
+        <a href="/players-profile.html" class="btn btn-dark">Your Details </a>
+      </div>
+    </div>
+  </div>
+  <div class="col-sm-3">
+    <div class="card">
+      <img src="/pics/pngtree-events-line-icon-vector-png-image_6626611.png" class="card-img-top" height="250" alt="...">
+      <div class="card-body">
+        <h5 class="card-title">EXPLORE EVENTS</h5>
+        <p class="card-text"></p>
+        <a href="/tournament-finder.html" class="btn btn-dark">Search</a>
+      </div>
+    </div>
+  </div>
+   <div class="col-sm-3">
+    <div class="card">
+      <img src="/pics/free-settings-icon-778-thumb.png" class="card-img-top" height="250" alt="...">
+      <div class="card-body">
+        <h5 class="card-title">Change/Update Password</h5>
+        <p class="card-text"></p>
+        <button type="button" class="btn btn-dark" data-bs-toggle="modal"
+            data-bs-target="#changepassModal">Settings</button>
+           
+      </div>
+    </div>
+  </div>
+   <div class="col-sm-3">
+    <div class="card">
+      <img src="/pics/5543009.png" class="card-img-top" height="250" alt="...">
+      <div class="card-body">
+         <h5 class="card-title">See you soon!</h5>
+        <p class="card-text"></p>
+        
+        <a href="" class="btn btn-dark">Logout</a>
+      </div>
+    </div>
+  </div>
+  
+</div>
+    </center>
+     <div class="modal fade" id="changepassModal" tabindex="-1" aria-labelledby="changepassModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h1 class="modal-title fs-5" id="changepassModalLabel">Update Password</h1>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        
+                        <form >
+                            <div class="mb-3">
+                                <label for="exampleFormControlInput1" class="form-label">Email address</label>
+                                
+                                <input type="email" class="form-control" ng-model="emailid" name="emailid" id="emailid"
+                                    placeholder="name@example.com">
+                            </div>
+                            <div class="mb-3">
+                                <label for="exampleFormControlInput1" class="form-label">Old Password</label>
+                                <input type="password" class="form-control" ng-model="oldpwd" name="oldpwd" id="oldpwd"
+                                    placeholder="8 Characters only">
+                            </div>
+                             <div class="mb-3">
+                                <label for="exampleFormControlInput1" class="form-label">New Password</label>
+                                <input type="password" class="form-control" ng-model="newpwd" name="newpwd" id="newpwd"
+                                    placeholder="8 Characters only">
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-dark" id="update" ng-click="doChange()">Update</button>
+                            </div>
+
+                        </form>
+                        
+
+                    </div>
+
+                </div>
+            </div>
+        </div>
+     </body>
+</html>

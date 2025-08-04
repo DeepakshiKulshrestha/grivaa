@@ -1,0 +1,172 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Bootstrap demo</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-LN+7fdVzj6u52u30Kp6M/trliBMCMKTyK833zpbD+pXdCLuTusPj697FH4R/5mcr" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-ndDqU0Gzau9qJ1lfW4pNLlhNTkCfHzAVBReH9diLvGRem5+R9g2FzA8ZGN954O5Q"
+        crossorigin="anonymous"></script>
+        <script> src="https://code.jquery.com/jquery-3.6.0.min.js"</script>
+        <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+
+
+    <script>
+        $(document).ready(function () {
+            $("#publish").click(function () {
+                let emaill = $("#inputemail4").val();
+                let title = $("#inputtitle").val();
+                let date = $("#inputdate").val();
+                let time = $("#inputtime").val();
+                let location = $("#inputloc").val();
+                let cityy = $("#inputCityy").val();
+                let category = $("#comboUser").val();
+                let minage = $("#inputmin").val();
+                let maxage = $("#inputmax").val();
+                let lastdate = $("#inputlast").val();
+                let fees = $("#inputfee").val();
+                let prize = $("#inputprize").val();
+                let person = $("#inputper").val();
+                
+              
+
+
+                let obj =
+                {
+                    type: "get",
+                    url: "/publish-event",
+                    data: {
+                        emaill: emaill,
+                        title: title,
+                        date: date,
+                        time: time,
+                        location: location,
+                        cityy: cityy,
+                        category: category,
+                        minage: minage,
+                        maxage: maxage,
+                        lastdate: lastdate,
+                        fees: fees,
+                        prize: prize,
+                        person: person,
+                        
+                        
+
+                    }
+                }
+                $.ajax(obj).then(function (resp) {
+                    //alert("Server says: " + resp); 
+                    //  alert("emailid: " + email + " password: " + pwd + " usertype:" + user);
+                    alert(resp);
+                    // console.log("emailid: "+email+" password: "+pwd+" usertype:"+user);
+                })
+                    .fail(function (err) {
+                        alert(err.message);
+
+                    })
+            })
+        })
+    </script>
+</head>
+
+<body>
+    <nav class="navbar" style="background-color: #ffffff ;">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="#">
+                <img src="/pics/Grivaa logo.jpg" alt="Logo" width="60" height="60"
+                    class="d-inline-block align-text-top">
+                <b>GRIVAA</b>
+
+            </a>
+
+        </div>
+    </nav>
+    <div class="container">
+        <div class="row">
+            <div class="col-md-16 offset-md-0 bg-dark">
+                <center>
+                    <h2>
+                        <font background color="white">Event Details Form</font>
+                    </h2>
+                </center>
+            </div>
+        </div>
+        <form  class="row g-3">
+            <div class="col-12">
+                <label for="inputemail4" class="form-label">Email ID</label>
+                <input type="email" class="form-control" id="inputemail4" name="inputemail4" placeholder="">
+            </div>
+            <div class="col-3">
+                <label for="inputtitle" class="form-label">Event Title</label>
+                <input type="text" class="form-control" id="inputtitle" name="inputtitle">
+            </div>
+            <div class="col-3">
+                <label for="inputdate" class="form-label">Date</label>
+                <input type="date" class="form-control" id="inputdate" name="inputdate">
+            </div>
+            <div class="col-3">
+                <label for="inputtime" class="form-label">Time</label>
+                <input type="time" class="form-control" id="inputtime" name="inputtime">
+            </div>
+            <div class="col-6">
+                <label for="inputloc" class="form-label">Location</label>
+                <input type="text" class="form-control" id="inputloc" name="inputloc">
+            </div>
+            <div class="col-6">
+                <label for="inputCityy" class="form-label">City</label>
+                <input type="text" class="form-control" id="inputCityy" name="inputCityy">
+            </div>
+            <div class="col-4">
+                <label for="inputcat" class="form-label">Sports Category</label>
+                 <select class="form-select" aria-label="Default select example" name="comboUser"
+                                id="comboUser">
+                                <option selected>Select </option>
+                                <option value="1">Badminton</option>
+                                <option value="2">Cricket</option>
+                                 <option value="3">Chess</option>
+                                  <option value="4">Kabaddi</option>
+                                   <option value="5">Basketball</option>
+                                   <option value="5">Voleyball</option>
+                                   <option value="5">Handball</option>
+
+                            </select></div>
+            <div class="col-3">
+                <label for="inputmin" class="form-label">Min Age</label>
+                <input type="number" class="form-control" id="inputmin" name="inputmin">
+            </div>
+            <div class="col-3">
+                <label for="inputmax" class="form-label">Max Age</label>
+                <input type="number" class="form-control" id="inputmax" name="inputmax">
+            </div>
+            <div class="col-4">
+                <label for="inputlast" class="form-label">Last date to apply</label>
+                <input type="date" class="form-control" id="inputlast" name="inputlast" placeholder="">
+            </div>
+            <div class="col-3">
+                <label for="inputfee" class="form-label">Reg. Fees</label>
+                <input type="text" class="form-control" id="inputfee" name="inputfee">
+            </div>
+            <div class="col-3">
+                <label for="inputprize" class="form-label">Prize</label>
+                <input type="text" class="form-control" id="inputprize" name="inputprize">
+            </div>
+            <div class="col-md-12">
+                <label for="inputper" class="form-label">Contact Person</label>
+                <input type="text" class="form-control" id="inputper" name="inputper" placeholder="">
+            </div>
+
+           
+
+            <div class="col-12">
+                <button type="button" class="btn btn-outline-dark" id="publish">Publish Event</button>
+
+            </div>
+        </form>
+    </div>
+
+</body>
+
+</html>
