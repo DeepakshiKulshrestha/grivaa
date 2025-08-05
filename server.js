@@ -1,333 +1,424 @@
-var express=require("express");
-var fileuploader=require("express-fileupload");
-const { result } = require("lodash");
-var mysql2=require("mysql2");
-const status = require("statuses");
+require('dotenv').config();
+const express = require('express');
+const fileUpload = require('express-fileupload');
+const helmet = require('helmet');
+const cors = require('cors');
+const morgan = require('morgan');
+const path = require('path');
 
+// Import configurations
+const { pool, testConnection } = require('./config/database');
+const { uploadImage } = require('./config/cloudinary');
+const { 
+    createRateLimiter, 
+    authRateLimiter, 
+    corsOptions, 
+    securityConfig 
+} = require('./middleware/security');
+const {
+    validateUserRegistration,
+    validateUserLogin,
+    validateOrganizerDetails,
+    validateTournamentCreation,
+    validatePlayerDetails,
+    validatePasswordChange,
+    handleValidationErrors
+} = require('./middleware/validation');
+const {
+    AppError,
+    globalErrorHandler,
+    catchAsync,
+    handleDatabaseError,
+    handleFileUploadError
+} = require('./utils/errorHandler');
 
+const app = express();
+const PORT = process.env.PORT || 2008;
 
+// Security middleware
+app.use(helmet(securityConfig));
+app.use(cors(corsOptions));
+app.use(createRateLimiter());
 
-var app=express();
-app.use(fileuploader());
-app.use(express.urlencoded(true));
-app.listen(2008,function(){
-    console.log("Server Started at Port no: 2008")
-})
+// Body parsing middleware
+app.use(express.json({ limit: '10mb' }));
+app.use(express.urlencoded({ extended: true, limit: '10mb' }));
+app.use(fileUpload({
+    limits: { fileSize: 5 * 1024 * 1024 }, // 5MB limit
+    abortOnLimit: true,
+    useTempFiles: true,
+    tempFileDir: '/tmp/'
+}));
 
-app.use(express.static("public"));
-app.get("/",function(req,resp)
-{
-    console.log(__dirname);
-    console.log(__filename);
+// Logging middleware
+if (process.env.NODE_ENV === 'development') {
+    app.use(morgan('dev'));
+}
 
-    let path=__dirname+"/public/index.html";
-    resp.sendFile(path);
+// Static files
+app.use(express.static('public'));
 
-})
- let dbConfig="mysql://avnadmin:AVNS_xENfTQ5vV4dBLEy87OW@mysql-34d621e9-deepakshiraj299-df15.c.aivencloud.com:19882/defaultdb?";
+// Database connection test
+testConnection();
 
-    let mySqlVen=mysql2.createConnection(dbConfig);
-    mySqlVen.connect(function(errKuch)
-    {
-        if(errKuch==null)
-                console.log("AiVen Connected Successfulllyyy!!!!");
-        else
-                console.log(errKuch.message)
-    })
-
-app.get("/save-user",function(req,resp)
-{
-    mySqlVen.query("insert into usersss(emailid, pwd, utype) values(?,?,?)",[req.query.email,req.query.pwd,req.query.user],function(err)
-{
-    if(err==null)
-    {
-        resp.send("record saved successfully");
-    }
-    else{
-        resp.send(err.message);
-    }
-})
-})
-app.get("/login-user", function (req, resp) {
-    let email = req.query.email;
-    let pwd = req.query.pwd;
-
-    let query = "SELECT * FROM usersss WHERE emailid = ? AND pwd = ?";
-
-    mySqlVen.query(query, [email, pwd], function (err, allRecords) {
-
-        if (allRecords.length == 1) {
-            let status = allRecords[0].status;
-
-            if (status == 0)
-                resp.send("Blocked");
-            else if (status == 1)
-                resp.send(allRecords[0].utype);
-            
-        }
-        else {
-            resp.send("Invalid");
-        }
-
-    });
-});
-app.post("/submit-org-details",function(req,resp){
-    let email=req.body.email;
-     let orgname=req.body.orgname;
-      let regno=req.body.regno;
-      let address = req.body.address;
-let city = req.body.city;
-let sports = req.body.sports;
-let website = req.body.website;
-let insta = req.body.insta;
-let head = req.body.head;
-let contact = req.body.contact;
-let pic = req.body.pic;
-let info=req.body.info;
- mySqlVen.query("insert into organiser(emailid,orgname,regnumber,address,city,sports,website,insta,head,contact,picurl,otherinfo) values(?,?,?,?,?,?,?,?,?,?,?,?)",[req.body.email,req.body.orgname,req.body.regno,req.body.address,req.body.city,req.body.sports,req.body.website,req.body.insta,req.body.head,req.body.contact, req.body.pic,req.body.info],function(err){
-
- 
-
-if (err) {
-        resp.send(err);
-    } else {
-        resp.send("Organiser details submitted successfully!");
-    }
-    })
-     
-
-})
-var cloudinary = require("cloudinary").v2;
-
-cloudinary.config({
-  cloud_name: "dwxt0yzsl",       
-  api_key: "428482712523946",
-  api_secret: "oqjPe5XsUvcnD6xfzvinVTqHXOU",
+// Routes
+app.get('/', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
-app.post("/update-user",async function(req,resp)
-{
-                
-        let email=req.body.email;
-     let orgname=req.body.orgname;
-      let regno=req.body.regno;
-      let address = req.body.address;
-let city = req.body.city;
-let sports = req.body.sports;
-let website = req.body.website;
-let insta = req.body.insta;
-let head = req.body.head;
-let contact = req.body.contact;
-let pic = req.body.pic;
-let info=req.body.info;
-
-        mySqlVen.query("update users2025 set pwd=?,mobile=?,picurl=? where emailid=?",[pwd,mobile,picurl,emailid],function(errKuch,result)
-        {
-                if(errKuch==null)
-                {
-                    if(result.affectedRows==1)
-                        resp.send("Record Saved Successfulllyyy....Badhai");
-                    else
-                        resp.send("Inavlid email Id");
-                }
-                else 
-                    resp.send(errKuch.message)   
-        })
-
-})
-app.get("/publish-event",function(req,resp)
-{
-  let emailid =req.query.emaill;
-  let event=req.query.title;
-  let doe=req.query.date;
-  let toe=req.query.time;
-  let location=req.query.location;
-  let city=req.query.cityy;
-  let sports=req.query.category;
-  let minage=req.query.minage;
-  let maxage=req.query.maxage;
-  let lastdate=req.query.lastdate;
-  let fee=req.query.fees;
-  let prize=req.query.prize;
-  let contact=req.query.person;
-  
-  
-
-    mySqlVen.query("insert into tournaments(emailid, event,doe,toe,location,city,sports,minage,maxage,lastdate,fee,prize,contact) values(?,?,?,?,?,?,?,?,?,?,?,?,?)",[req.query.emaill,req.query.title,req.query.date,req.query.time,req.query.location,req.query.cityy,req.query.category,req.query.minage,req.query.maxage,req.query.lastdate,req.query.fees,req.query.prize,req.query.person],function(err)
-{
-    if(err==null)
-    {
-        resp.send("record saved successfully");
-    }
-    else{
-        resp.send(err.message);
-    }
-})
-})
-app.post("/player-details", async function(req, resp) {
-    let acardpicurl = "";
-    let profilepicurl = "";
-
-    // Check if files are uploaded
-    if (req.files != null) {
-        // Aadhar Pic
-        if (req.files.adhaarPic) {
-            let fName1 = req.files.adhaarPic.name;
-            let fullPath1 = __dirname + "/public/pics/" + fName1;
-            req.files.adhaarPic.mv(fullPath1);
-
-            let result1 = await cloudinary.uploader.upload(fullPath1);
-            acardpicurl = result1.url; 
-            console.log("Aadhar pic URL: " + acardpicurl);
-        }
-
-        // Profile Pic
-        if (req.files.profilePic) {
-            let fName2 = req.files.profilePic.name;
-            let fullPath2 = __dirname + "/public/pics/" + fName2;
-            req.files.profilePic.mv(fullPath2);
-
-           let result2 = await cloudinary.uploader.upload(fullPath2);
-            profilepicurl = result2.url; 
-            console.log("Profile pic URL: " + profilepicurl);
-        }
-    } else {
-        // If no new files, use hidden values
-        acardpicurl = req.body.hdnAcard;
-        profilepicurl = req.body.hdnProfile;
-    }
-
-    
-    let emailid = req.body.inputemail5;
-    let name = req.body.name3;
-    let dob = req.body.date;
-    let gender = req.body.gender;
-    let address = req.body.inputloc1;
-    let contact = req.body.inputcontact1;
-    let game = req.body.comboUser;
-    let otherinfo = req.body.inputinfo;
-    
-
-    mySqlVen.query("insert into players(emailid, acardpicurl, profilepicurl,name,dob,gender,address,contact,game,otherinfo) values(?,?,?,?,?,?,?,?,?,?)",
-        [emailid,acardpicurl, profilepicurl,name,dob,gender,address,contact,game,otherinfo],
-        function(err, result) {
-            if (err) {
-                console.log(err);
-                resp.send("Something went wrong");
-            } else {
-                resp.send("Uploaded successfully");
-            }
+// User registration
+app.get('/save-user', 
+    authRateLimiter,
+    validateUserRegistration,
+    handleValidationErrors,
+    catchAsync(async (req, res) => {
+        const { email, pwd, user } = req.query;
+        
+        const [result] = await pool.execute(
+            'INSERT INTO usersss(emailid, pwd, utype) VALUES (?, ?, ?)',
+            [email, pwd, user]
+        );
+        
+        res.json({
+            success: true,
+            message: 'User registered successfully',
+            userId: result.insertId
         });
-});
-app.get("/fetch-tournaments", function (req, resp) {
-    let email = req.query.emailid;
-
-    mySqlVen.query("SELECT * FROM tournaments WHERE emailid = ?", [email], function (err, result) {
-       resp.send(result);
-    });
-});
-app.get("/delete-tournamentmanager", function(req, resp) {
-    let rid = req.query.rid;
-
-    mySqlVen.query("DELETE FROM tournaments WHERE rid = ?", [rid], function(err, result) {
-        if (err) {
-            console.log(err);
-            resp.send(err.message);
-        } else {
-            if(result.affectedRows==1)
-            resp.send("Tournament deleted successfully.");
-        else
-            resp.send("invalid");
-        }
-    });
-});
-app.get("/change-password",function(req,resp){
-    let emailid=req.query.emailid;
-    let oldpwd=req.query.oldpwd;
-    let newpwd=req.query.newpwd;
-    mySqlVen.query("update usersss set pwd=? where emailid=? and pwd=? ", [newpwd,emailid,oldpwd],function(err,result){
-         if (err) {
-            console.log(err);
-            resp.send(err.message);
-        } else {
-            if(result.affectedRows==1)
-            resp.send("Updated successfully.");
-        else
-            resp.send("invalid");
-        }
-
     })
-    
+);
 
-})
-app.get("/dofetchdistinct-sports",function(req,resp)
-{
-    mySqlVen.query("select distinct sports from tournaments",function(err,result)
-        {
-            resp.send(result);
+// User login
+app.get('/login-user',
+    authRateLimiter,
+    validateUserLogin,
+    handleValidationErrors,
+    catchAsync(async (req, res) => {
+        const { email, pwd } = req.query;
+        
+        const [records] = await pool.execute(
+            'SELECT * FROM usersss WHERE emailid = ? AND pwd = ?',
+            [email, pwd]
+        );
+        
+        if (records.length === 1) {
+            const user = records[0];
+            if (user.status === 0) {
+                res.json({ success: false, message: 'Account is blocked' });
+            } else {
+                res.json({ 
+                    success: true, 
+                    userType: user.utype,
+                    message: 'Login successful'
+                });
+            }
+        } else {
+            res.status(401).json({ 
+                success: false, 
+                message: 'Invalid credentials' 
+            });
         }
-    )
-})
-app.get("/dofetchdistinct-cities",function(req,resp)
-{
-    mySqlVen.query("select distinct city from tournaments",function(err,result)
-        {
-            resp.send(result);
+    })
+);
+
+// Submit organizer details
+app.post('/submit-org-details',
+    validateOrganizerDetails,
+    handleValidationErrors,
+    catchAsync(async (req, res) => {
+        const {
+            email, orgname, regno, address, city, sports,
+            website, insta, head, contact, pic, info
+        } = req.body;
+        
+        await pool.execute(
+            `INSERT INTO organiser(emailid, orgname, regnumber, address, city, 
+             sports, website, insta, head, contact, picurl, otherinfo) 
+             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+            [email, orgname, regno, address, city, sports, 
+             website, insta, head, contact, pic, info]
+        );
+        
+        res.json({
+            success: true,
+            message: 'Organizer details submitted successfully!'
+        });
+    })
+);
+
+// Publish event/tournament
+app.get('/publish-event',
+    validateTournamentCreation,
+    handleValidationErrors,
+    catchAsync(async (req, res) => {
+        const {
+            emaill, title, date, time, location, cityy, category,
+            minage, maxage, lastdate, fees, prize, person
+        } = req.query;
+        
+        await pool.execute(
+            `INSERT INTO tournaments(emailid, event, doe, toe, location, city, 
+             sports, minage, maxage, lastdate, fee, prize, contact) 
+             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+            [emaill, title, date, time, location, cityy, category,
+             minage, maxage, lastdate, fees, prize, person]
+        );
+        
+        res.json({
+            success: true,
+            message: 'Tournament published successfully'
+        });
+    })
+);
+
+// Player details submission with file upload
+app.post('/player-details',
+    validatePlayerDetails,
+    handleValidationErrors,
+    catchAsync(async (req, res) => {
+        let acardPicUrl = req.body.hdnAcard || '';
+        let profilePicUrl = req.body.hdnProfile || '';
+        
+        // Handle file uploads
+        if (req.files) {
+            try {
+                if (req.files.adhaarPic) {
+                    const fileName = req.files.adhaarPic.name;
+                    const filePath = path.join(__dirname, 'public', 'pics', fileName);
+                    await req.files.adhaarPic.mv(filePath);
+                    acardPicUrl = await uploadImage(filePath);
+                }
+                
+                if (req.files.profilePic) {
+                    const fileName = req.files.profilePic.name;
+                    const filePath = path.join(__dirname, 'public', 'pics', fileName);
+                    await req.files.profilePic.mv(filePath);
+                    profilePicUrl = await uploadImage(filePath);
+                }
+            } catch (error) {
+                throw handleFileUploadError(error);
+            }
         }
-    )
-})
-app.get("/fetch-player-tournaments-cards",function(req,resp)
-{
-    mySqlVen.query("select * from tournaments where sports=? and city=?",[req.query.selsports,req.query.selcity],function(err,result)
-{
-    resp.send(result);
-})
-})
-app.get("/fetch-player-tournaments-details",function(req,resp)
-{
-    mySqlVen.query("select * from tournaments where sports=? and city=?",[req.query.selsports,req.query.selcity],function(err,result)
-{
-    resp.send(result);
-})
-})
-app.get("/fetch-player-records",function(req,resp)
-{
-    mySqlVen.query("select * from players",function(err,result)
-{
-    resp.send(result);
-})
-})
-app.get("/fetch-org-records",function(req,resp)
-{
-    mySqlVen.query("select * from organiser",function(err,result)
-{
-    resp.send(result);
-})
-})
-app.get("/dofetchrecords",function(req,resp){
-    mySqlVen.query("select * from usersss",function(err,result)
-{
-    resp.send(result);
-})
-})
-app.get("/doblock",function(req,resp){
-    mySqlVen.query("update usersss set status=0 where emailid=?",[req.query.emailid],function(err,result)
-{
-    if(err==null)
-        resp.send("Blocked");
-    else
-        resp.send(err.message);
-})
-})
-app.get("/doactive",function(req,resp){
-    mySqlVen.query("update usersss set status=1 where emailid=?",[req.query.emailid],function(err,result)
-{
-    if(err==null)
-        resp.send("Active");
-    else
-        resp.send(err.message);
-})
-})
+        
+        const {
+            inputemail5, name3, date, gender, inputloc1, 
+            inputcontact1, comboUser, inputinfo
+        } = req.body;
+        
+        await pool.execute(
+            `INSERT INTO players(emailid, acardpicurl, profilepicurl, name, dob, 
+             gender, address, contact, game, otherinfo) 
+             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+            [inputemail5, acardPicUrl, profilePicUrl, name3, date, gender,
+             inputloc1, inputcontact1, comboUser, inputinfo]
+        );
+        
+        res.json({
+            success: true,
+            message: 'Player details uploaded successfully'
+        });
+    })
+);
+
+// Fetch tournaments for a user
+app.get('/fetch-tournaments',
+    catchAsync(async (req, res) => {
+        const { emailid } = req.query;
+        
+        const [tournaments] = await pool.execute(
+            'SELECT * FROM tournaments WHERE emailid = ?',
+            [emailid]
+        );
+        
+        res.json({
+            success: true,
+            data: tournaments
+        });
+    })
+);
+
+// Delete tournament
+app.get('/delete-tournamentmanager',
+    catchAsync(async (req, res) => {
+        const { rid } = req.query;
+        
+        const [result] = await pool.execute(
+            'DELETE FROM tournaments WHERE rid = ?',
+            [rid]
+        );
+        
+        if (result.affectedRows === 1) {
+            res.json({
+                success: true,
+                message: 'Tournament deleted successfully'
+            });
+        } else {
+            res.status(404).json({
+                success: false,
+                message: 'Tournament not found'
+            });
+        }
+    })
+);
+
+// Change password
+app.get('/change-password',
+    validatePasswordChange,
+    handleValidationErrors,
+    catchAsync(async (req, res) => {
+        const { emailid, oldpwd, newpwd } = req.query;
+        
+        const [result] = await pool.execute(
+            'UPDATE usersss SET pwd = ? WHERE emailid = ? AND pwd = ?',
+            [newpwd, emailid, oldpwd]
+        );
+        
+        if (result.affectedRows === 1) {
+            res.json({
+                success: true,
+                message: 'Password updated successfully'
+            });
+        } else {
+            res.status(400).json({
+                success: false,
+                message: 'Invalid old password or email'
+            });
+        }
+    })
+);
+
+// Fetch distinct sports
+app.get('/dofetchdistinct-sports',
+    catchAsync(async (req, res) => {
+        const [sports] = await pool.execute('SELECT DISTINCT sports FROM tournaments');
+        res.json({
+            success: true,
+            data: sports
+        });
+    })
+);
+
+// Fetch distinct cities
+app.get('/dofetchdistinct-cities',
+    catchAsync(async (req, res) => {
+        const [cities] = await pool.execute('SELECT DISTINCT city FROM tournaments');
+        res.json({
+            success: true,
+            data: cities
+        });
+    })
+);
+
+// Fetch tournaments by sports and city
+app.get('/fetch-player-tournaments-cards',
+    catchAsync(async (req, res) => {
+        const { selsports, selcity } = req.query;
+        
+        const [tournaments] = await pool.execute(
+            'SELECT * FROM tournaments WHERE sports = ? AND city = ?',
+            [selsports, selcity]
+        );
+        
+        res.json({
+            success: true,
+            data: tournaments
+        });
+    })
+);
+
+// Fetch player records
+app.get('/fetch-player-records',
+    catchAsync(async (req, res) => {
+        const [players] = await pool.execute('SELECT * FROM players');
+        res.json({
+            success: true,
+            data: players
+        });
+    })
+);
+
+// Fetch organizer records
+app.get('/fetch-org-records',
+    catchAsync(async (req, res) => {
+        const [organizers] = await pool.execute('SELECT * FROM organiser');
+        res.json({
+            success: true,
+            data: organizers
+        });
+    })
+);
+
+// Fetch all users
+app.get('/dofetchrecords',
+    catchAsync(async (req, res) => {
+        const [users] = await pool.execute('SELECT * FROM usersss');
+        res.json({
+            success: true,
+            data: users
+        });
+    })
+);
+
+// Block user
+app.get('/doblock',
+    catchAsync(async (req, res) => {
+        const { emailid } = req.query;
+        
+        await pool.execute(
+            'UPDATE usersss SET status = 0 WHERE emailid = ?',
+            [emailid]
+        );
+        
+        res.json({
+            success: true,
+            message: 'User blocked successfully'
+        });
+    })
+);
+
+// Activate user
+app.get('/doactive',
+    catchAsync(async (req, res) => {
+        const { emailid } = req.query;
+        
+        await pool.execute(
+            'UPDATE usersss SET status = 1 WHERE emailid = ?',
+            [emailid]
+        );
+        
+        res.json({
+            success: true,
+            message: 'User activated successfully'
+        });
+    })
+);
+
+// 404 handler
+app.use('*', (req, res) => {
+    res.status(404).json({
+        success: false,
+        message: `Route ${req.originalUrl} not found`
+    });
+});
+
+// Global error handler
+app.use(globalErrorHandler);
+
+// Start server
+app.listen(PORT, () => {
+    console.log(`Server started at port: ${PORT}`);
+    console.log(`Environment: ${process.env.NODE_ENV}`);
+});
+
+// Graceful shutdown
+process.on('SIGTERM', () => {
+    console.log('SIGTERM received. Shutting down gracefully...');
+    process.exit(0);
+});
+
+process.on('SIGINT', () => {
+    console.log('SIGINT received. Shutting down gracefully...');
+    process.exit(0);
+});
 
 
 
