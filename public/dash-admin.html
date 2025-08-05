@@ -37,11 +37,16 @@
   font-family: Arial, sans-serif;
   }
   </style>
-
+ <script>
+    function showuser(){
+      let activeuser=localStorage.getItem("activeuser");
+      document.getElementById("admin").innerHTML=activeuser;
+    }
+  </script>
 
 </head>
 
-<body>
+<body onload="showuser()">
 
   <nav class="navbar" style="background-color: #ffffff ;">
     <div class="container-fluid">
@@ -49,6 +54,12 @@
         <div class="logo-container">
           <img src="/pics/Grivaa logo.jpg" alt="Logo" class="logo-img">
           <b class="logo-text">GRIVAA</b>
+           <center>
+        <div style="margin-top: 20px;">
+             <h1>Welcome : <span id="admin"></span></h1>
+        </div>
+       
+    </center>
         </div>
 
       </a>

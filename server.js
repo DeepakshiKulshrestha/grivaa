@@ -62,11 +62,11 @@ app.get("/login-user", function (req, resp) {
             if (status == 0)
                 resp.send("Blocked");
             else if (status == 1)
-                resp.send("Login Succesful");
+                resp.send(allRecords[0].utype);
             
         }
         else {
-            resp.send("Wrong emailid / pwd");
+            resp.send("Invalid");
         }
 
     });
@@ -302,6 +302,30 @@ app.get("/fetch-org-records",function(req,resp)
     mySqlVen.query("select * from organiser",function(err,result)
 {
     resp.send(result);
+})
+})
+app.get("/dofetchrecords",function(req,resp){
+    mySqlVen.query("select * from usersss",function(err,result)
+{
+    resp.send(result);
+})
+})
+app.get("/doblock",function(req,resp){
+    mySqlVen.query("update usersss set status=0 where emailid=?",[req.query.emailid],function(err,result)
+{
+    if(err==null)
+        resp.send("Blocked");
+    else
+        resp.send(err.message);
+})
+})
+app.get("/doactive",function(req,resp){
+    mySqlVen.query("update usersss set status=1 where emailid=?",[req.query.emailid],function(err,result)
+{
+    if(err==null)
+        resp.send("Active");
+    else
+        resp.send(err.message);
 })
 })
 

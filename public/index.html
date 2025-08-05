@@ -53,17 +53,36 @@
                     }
                 }
                 $.ajax(obj).then(function (resp) {
-                    //alert("Server says: " + resp); 
-                  //  alert("emailid: " + email + " password: " + pwd + " usertype:" + user);
-                    alert(resp);
-                    // console.log("emailid: "+email+" password: "+pwd+" usertype:"+user);
-                })
+                   if(response=="Invalid")
+                {
+                    alert("Invalid Password or emailid");
+                }
+                else if(response=="Blocked")
+                {
+                    alert("Blocked User");
+                }
+                else if(response=="player")
+                {
+                    localStorage.setItem("activeuser",email);
+                    location.href="/dash-player.html";
+                }
+                else if(response=="organiser")
+                {
+                    localStorage.setItem("activeuser",email);
+                    location.href="/dash-organiser.html";
+                }
+                else if(response=="admin")
+                {
+                    localStorage.setItem("activeuser",email);
+                    location.href="/dash-admin.html";
+                }
+                }) })
                     .fail(function (err) {
                         alert(err.message);
                        
                     })
             })
-        })
+        
        
 
 
@@ -144,8 +163,9 @@
                             <select class="form-select" aria-label="Default select example" name="comboUser"
                                 id="comboUser">
                                 <option selected>User Type</option>
-                                <option value="1">Organizer</option>
-                                <option value="2">Player</option>
+                                <option value="organiser">Organizer</option>
+                                <option value="player">Player</option>
+                                 <option value="admin">Admin</option>
 
                             </select>
                             <div class="modal-footer">

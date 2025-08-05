@@ -47,10 +47,22 @@
   })
 
     </script>
+     <script>
+    function showuser(){
+      let activeuser=localStorage.getItem("activeuser");
+      document.getElementById("player").innerHTML=activeuser;
+    }
+  </script>
+  <script>
+    function dologout(){
+      localStorage.removeItem("activeuser");
+      location.href="/index.html";
+    }
+  </script>
 
 
 </head>
-  <body ng-app="kuchModule" ng-controller="kuchController">
+  <body ng-app="kuchModule" ng-controller="kuchController" onload="showuser()">
 
     
       <nav class="navbar" style="background-color: #ffffff ;">
@@ -58,6 +70,12 @@
     <a class="navbar-brand" href="#">
       <img src="/pics/Grivaa logo.jpg" alt="Logo" width="60" height="60" class="d-inline-block align-text-top">
       <b>GRIVAA</b>
+       <center>
+        <div style="margin-top: 20px;">
+             <h1>Welcome : <span id="player"></span></h1>
+        </div>
+       
+    </center>
     </a>
    
   </div>
@@ -103,7 +121,7 @@
          <h5 class="card-title">See you soon!</h5>
         <p class="card-text"></p>
         
-        <a href="" class="btn btn-dark">Logout</a>
+        <a href="" class="btn btn-dark" onclick="dologout()">Logout</a>
       </div>
     </div>
   </div>
