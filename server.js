@@ -1,13 +1,13 @@
-var express=require("express");
-var fileuploader=require("express-fileupload");
+const express=require("express");
+const fileuploader=require("express-fileupload");
 const { result } = require("lodash");
-var mysql2=require("mysql2");
+const mysql2=require("mysql2");
 const status = require("statuses");
 
 
 
 
-var app=express();
+const app=express();
 app.use(fileuploader());
 app.use(express.urlencoded(true));
 app.listen(2008,function(){
