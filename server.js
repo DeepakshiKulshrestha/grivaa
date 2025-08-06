@@ -24,16 +24,16 @@ app.get("/",function(req,resp)
     resp.sendFile(path);
 
 })
- let dbConfig="mysql://avnadmin:AVNS_xENfTQ5vV4dBLEy87OW@mysql-34d621e9-deepakshiraj299-df15.c.aivencloud.com:19882/defaultdb?";
+ let dbConfig = process.env.DB_URL;
 
-    let mySqlVen=mysql2.createConnection(dbConfig);
-    mySqlVen.connect(function(errKuch)
-    {
-        if(errKuch==null)
-                console.log("AiVen Connected Successfulllyyy!!!!");
-        else
-                console.log(errKuch.message)
-    })
+let mySqlVen = mysql2.createConnection(dbConfig);
+mySqlVen.connect(function(errKuch) {
+    if (errKuch == null)
+        console.log("AiVen Connected Successfullyyy!!!!");
+    else
+        console.log(errKuch.message);
+});
+
 
 app.get("/save-user",function(req,resp)
 {
