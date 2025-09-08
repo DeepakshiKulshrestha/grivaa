@@ -3,6 +3,8 @@ const fileuploader=require("express-fileupload");
 const { result } = require("lodash");
 const mysql2=require("mysql2");
 const status = require("statuses");
+require('dotenv').config();
+
 
 
 
@@ -100,10 +102,11 @@ if (err) {
 var cloudinary = require("cloudinary").v2;
 
 cloudinary.config({
-  cloud_name: "dwxt0yzsl",       
-  api_key: "428482712523946",
-  api_secret: "oqjPe5XsUvcnD6xfzvinVTqHXOU",
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET,
 });
+
 
 app.post("/update-user",async function(req,resp)
 {
