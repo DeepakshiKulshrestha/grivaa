@@ -73,6 +73,37 @@ app.get("/login-user", function (req, resp) {
 
     });
 });
+// Signup
+$("#save").click(function () {
+    let email = $("#txtEmail").val();
+    let pwd = $("#txtPwd").val();
+    let user = $("#comboUser").val();
+
+    $.get("/save-user", { email, pwd, user })
+        .then(function (resp) {
+            if (resp.includes("successfully") || resp.includes("saved")) {
+                alert("Signup successful!");
+
+                // ✅ redirect user type ke according
+                if (user === "player") {
+                    localStorage.setItem("activeuser", email);
+                    location.href = "/dash-player.html";
+                } else if (user === "organiser") {
+                    localStorage.setItem("activeuser", email);
+                    location.href = "/dash-organiser.html";
+                } else if (user === "admin") {
+                    localStorage.setItem("activeuser", email);
+                    location.href = "/dash-admin.html";
+                }
+            } else {
+                alert(resp); // if already exists ya error
+            }
+        })
+        .fail(function (err) {
+            alert("Error: " + err.message);
+        });
+});
+
 app.post("/submit-org-details",function(req,resp){
     let email=req.body.email;
      let orgname=req.body.orgname;
@@ -129,7 +160,7 @@ let info=req.body.info;
                 if(errKuch==null)
                 {
                     if(result.affectedRows==1)
-                        resp.send("Record Saved Successfulllyyy....Badhai");
+                        resp.send("Record Saved Successfulllyyy....]");
                     else
                         resp.send("Inavlid email Id");
                 }

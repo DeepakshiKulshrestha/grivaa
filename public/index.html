@@ -111,6 +111,74 @@
   font-family: Arial, sans-serif;
   }
   </style>
+  <script>
+    $(document).ready(function () {
+      // Signup button click
+      $("#save").click(function () {
+        let email = $("#txtEmail").val();
+        let pwd = $("#txtPwd").val();
+        let user = $("#comboUser").val();
+
+        if (!email || !pwd || !user) {
+          alert("Please fill all fields!");
+          return;
+        }
+
+        $.ajax({
+          type: "get",
+          url: "/save-user",
+          data: { email, pwd, user }
+        }).then(function (resp) {
+          alert(resp);
+          if (resp === "saved") {
+            if (user === "player") location.href = "/dash-player.html";
+            else if (user === "organiser") location.href = "/dash-organiser.html";
+            else if (user === "admin") location.href = "/dash-admin.html";
+          }
+        }).fail(function (err) {
+          alert("Error: " + err.responseText);
+        });
+      });
+
+      // Login button click
+      $("#btnLogin").click(function () {
+        let email = $("#txtEmail2").val();
+        let pwd = $("#txtPwd2").val();
+
+        if (!email || !pwd) {
+          alert("Please enter email & password!");
+          return;
+        }
+
+        $.ajax({
+          type: "get",
+          url: "/login-user",
+          data: { email, pwd }
+        }).then(function (resp) {
+          if (resp === "Invalid") {
+            alert("Invalid Email or Password!");
+          }
+          else if (resp === "Blocked") {
+            alert("Your account is blocked!");
+          }
+          else if (resp === "player") {
+            localStorage.setItem("activeuser", email);
+            location.href = "/dash-player.html";
+          }
+          else if (resp === "organiser") {
+            localStorage.setItem("activeuser", email);
+            location.href = "/dash-organiser.html";
+          }
+          else if (resp === "admin") {
+            localStorage.setItem("activeuser", email);
+            location.href = "/dash-admin.html";
+          }
+        }).fail(function (err) {
+          alert("Error: " + err.responseText);
+        });
+      });
+    });
+  </script>
     
 </head>
 
@@ -138,10 +206,7 @@
         </button>
         
        
-        <a href="/dash-organiser.html" target="_blank" class="btn btn-outline-dark">Org Dashboard</a>
-        <a href="/dash-player.html" target="_blank" class="btn btn-outline-dark">Players Dashboard</a>
-         <a href="/dash-admin.html" target="_blank" class="btn btn-outline-dark">Admin Dashboard</a>
-
+       
 
 
         <!--signup  Modal -->
