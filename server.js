@@ -3,8 +3,6 @@ const fileuploader=require("express-fileupload");
 const { result } = require("lodash");
 const mysql2=require("mysql2");
 const status = require("statuses");
-require('dotenv').config();
-
 
 
 
@@ -26,7 +24,7 @@ app.get("/",function(req,resp)
     resp.sendFile(path);
 
 })
- let dbConfig = process.env.DB_URL;
+ let dbConfig = 'mysql://avnadmin:AVNS_xENfTQ5vV4dBLEy87OW@mysql-34d621e9-deepakshiraj299-df15.c.aivencloud.com:19882/defaultdb?ssl-mode=REQUIRED';
 
 let mySqlVen = mysql2.createConnection(dbConfig);
 mySqlVen.connect(function(errKuch) {
@@ -73,7 +71,6 @@ app.get("/login-user", function (req, resp) {
 
     });
 });
-
 app.post("/submit-org-details",function(req,resp){
     let email=req.body.email;
      let orgname=req.body.orgname;
@@ -103,11 +100,10 @@ if (err) {
 var cloudinary = require("cloudinary").v2;
 
 cloudinary.config({
-  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
-  api_key: process.env.CLOUDINARY_API_KEY,
-  api_secret: process.env.CLOUDINARY_API_SECRET,
+  cloud_name: "dwxt0yzsl",       
+  api_key: "428482712523946",
+  api_secret: "oqjPe5XsUvcnD6xfzvinVTqHXOU",
 });
-
 
 app.post("/update-user",async function(req,resp)
 {
@@ -130,7 +126,7 @@ let info=req.body.info;
                 if(errKuch==null)
                 {
                     if(result.affectedRows==1)
-                        resp.send("Record Saved Successfulllyyy....]");
+                        resp.send("Record Saved Successfulllyyy....Badhai");
                     else
                         resp.send("Inavlid email Id");
                 }
