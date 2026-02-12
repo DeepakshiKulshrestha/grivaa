@@ -26,9 +26,16 @@ app.get("/",function(req,resp)
     resp.sendFile(path);
 
 })
-let dbConfig = process.env.DB_URL;
-
-let mySqlVen = mysql2.createConnection(dbConfig);
+let mySqlVen = mysql2.createConnection({
+    host: "mysql-34d621e9-deepakshiraj299-df15.c.aivencloud.com",
+    user: "avnadmin",
+    password: "YOUR_PASSWORD",
+    database: "defaultdb",
+    port: 19882,
+    ssl: {
+        rejectUnauthorized: false
+    }
+});
 mySqlVen.connect(function(errKuch) {
     if (errKuch == null)
         console.log("AiVen Connected Successfullyyy!!!!");
